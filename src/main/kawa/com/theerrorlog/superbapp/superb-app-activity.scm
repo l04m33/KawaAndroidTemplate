@@ -1,4 +1,4 @@
-(define-library (com theerrorlog superb-app-activity)
+(define-library (com theerrorlog superbapp superb-app-activity)
   (import (kawa base)
           (class android.app Activity)
           (class android.os Bundle))
