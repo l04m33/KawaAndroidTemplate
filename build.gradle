@@ -1,21 +1,92 @@
+def appId = 'com.theerrorlog.superbapp'
+def localLibs = fileTree(dir: 'libs', include: ['*.jar'])
+def kawaSourceDir = 'src/main/kawa'
+
 buildscript {
     repositories {
-        mavenCentral()
+        jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.3'
     }
 }
-apply plugin: 'android'
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+apply plugin: 'com.android.application'
+
+dependencies {
+    compile localLibs
+}
 
 android {
-    compileSdkVersion 'android-21'
+    compileSdkVersion 21
     buildToolsVersion '25.0.2'
+
+    defaultConfig {
+        applicationId appId
+        targetSdkVersion 21
+        versionCode 1
+        versionName "1.0"
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('release-key.jks')
+            storePassword '123456'
+            keyAlias 'relkey'
+            keyPassword '123456'
+        }
+    }
 
     buildTypes {
         release {
-            runProguard false
-            proguardFile getDefaultProguardFile('proguard-android.txt')
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
+    }
+}
+
+afterEvaluate {
+    def androidPlugin = plugins.findPlugin('com.android.application')
+    def androidBootClassFiles = files(androidPlugin.androidBuilder.getBootClasspath(false))
+    def kawaSourceFiles = fileTree(dir: kawaSourceDir, include: ['**/*.scm'])
+
+    android.applicationVariants.all { variant ->
+        def variantName = variant.name.capitalize()
+        def destDir = variant.javaCompile.destinationDir
+        def javaClasspath = variant.javaCompile.classpath
+
+        task "compileKawa${variantName}" (type: JavaExec) {
+            classpath localLibs
+            classpath androidBootClassFiles
+            classpath javaClasspath
+            classpath destDir
+
+            inputs.files(classpath)
+            inputs.files(kawaSourceFiles)
+            outputs.dir(destDir)
+
+            main 'kawa.repl'
+
+            args '--warn-invoke-unknown-method'
+            args '--warn-undefined-variable'
+            args '--warn-unknown-member'
+            args '--warn-unreachable'
+            args '--warn-unused'
+            args '--warn-as-error'
+            args '-d'
+            args destDir
+            args '-C'
+            args kawaSourceFiles.getFiles()
+        }
+
+        tasks.findByName("compileKawa${variantName}").dependsOn(variant.javaCompile)
+        tasks.findByName("transformClassesWithDexFor${variantName}").dependsOn("compileKawa${variantName}")
     }
 }
