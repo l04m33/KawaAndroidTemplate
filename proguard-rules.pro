@@ -3,4 +3,4 @@
 -dontwarn gnu.kawa.**
 -dontwarn kawa.**
 
--keep public class com.theerrorlog.superbapp.SuperbAppActivity
+-keep public class com.theerrorlog.superbapp.MainActivity

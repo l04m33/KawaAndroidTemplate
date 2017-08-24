@@ -9,13 +9,13 @@ import android.test.ActivityInstrumentationTestCase2;
  * <p/>
  * To run this test, you can type:
  * adb shell am instrument -w \
- * -e class com.theerrorlog.superbapp.SuperbAppActivityTest \
+ * -e class com.theerrorlog.superbapp.MainActivityTest \
  * com.theerrorlog.superbapp.tests/android.test.InstrumentationTestRunner
  */
-public class SuperbAppActivityTest extends ActivityInstrumentationTestCase2<SuperbAppActivity> {
+public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
-    public SuperbAppActivityTest() {
-        super("com.theerrorlog.superbapp", SuperbAppActivity.class);
+    public MainActivityTest() {
+        super("com.theerrorlog.superbapp", MainActivity.class);
     }
 
 }
