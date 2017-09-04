@@ -31,7 +31,7 @@ buildscript {
             project.ext.androidTargetSdkVersion = 21
         }
         if (!project.hasProperty('androidBuildToolsVersion')) {
-            project.ext.androidBuildToolsVersion = '25.0.2'
+            project.ext.androidBuildToolsVersion = '26.0.1'
         }
         if (!project.hasProperty('androidGradlePluginVersion')) {
             project.ext.androidGradlePluginVersion = '2.3.3'
@@ -105,7 +105,9 @@ android {
 
         debug {
             kawa {
-                inline false
+                // XXX: Setting `--no-inline` messes up the bytecode output for static
+                //      initialization blocks
+                inline true
             }
         }
     }
