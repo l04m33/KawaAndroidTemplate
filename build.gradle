@@ -25,10 +25,10 @@ buildscript {
             project.ext.localLibsDir = 'libs'
         }
         if (!project.hasProperty('androidCompileSdkVersion')) {
-            project.ext.androidCompileSdkVersion = 21
+            project.ext.androidCompileSdkVersion = 26
         }
         if (!project.hasProperty('androidTargetSdkVersion')) {
-            project.ext.androidTargetSdkVersion = 21
+            project.ext.androidTargetSdkVersion = 26
         }
         if (!project.hasProperty('androidBuildToolsVersion')) {
             project.ext.androidBuildToolsVersion = '26.0.1'
