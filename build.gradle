@@ -25,21 +25,25 @@ buildscript {
             project.ext.localLibsDir = 'libs'
         }
         if (!project.hasProperty('androidCompileSdkVersion')) {
-            project.ext.androidCompileSdkVersion = 26
+            project.ext.androidCompileSdkVersion = 28
         }
         if (!project.hasProperty('androidTargetSdkVersion')) {
-            project.ext.androidTargetSdkVersion = 26
+            project.ext.androidTargetSdkVersion = 28
+        }
+        if (!project.hasProperty('androidMinSdkVersion')) {
+            project.ext.androidMinSdkVersion = 23
         }
         if (!project.hasProperty('androidBuildToolsVersion')) {
-            project.ext.androidBuildToolsVersion = '26.0.1'
+            project.ext.androidBuildToolsVersion = '28.0.2'
         }
         if (!project.hasProperty('androidGradlePluginVersion')) {
-            project.ext.androidGradlePluginVersion = '2.3.3'
+            project.ext.androidGradlePluginVersion = '3.1.0'
         }
     }
 
     repositories {
         jcenter()
+        google()
     }
     dependencies {
         classpath "com.android.tools.build:gradle:${androidGradlePluginVersion}"
@@ -58,7 +62,7 @@ allprojects {
 }
 
 dependencies {
-    compile fileTree(dir: localLibsDir, include: ['*.jar'])
+    implementation fileTree(dir: localLibsDir, include: ['*.jar'])
 }
 
 kawa {
@@ -72,6 +76,7 @@ android {
     defaultConfig {
         applicationId appId
         targetSdkVersion androidTargetSdkVersion
+        minSdkVersion androidMinSdkVersion
         versionCode appVersionCode
         versionName appVersionName
     }
