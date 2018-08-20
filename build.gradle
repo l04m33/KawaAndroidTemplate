@@ -42,8 +42,8 @@ buildscript {
     }
 
     repositories {
-        jcenter()
         google()
+        jcenter()
     }
     dependencies {
         classpath "com.android.tools.build:gradle:${androidGradlePluginVersion}"
@@ -57,6 +57,7 @@ apply plugin: 'com.android.application'
 
 allprojects {
     repositories {
+        google()
         jcenter()
     }
 }
