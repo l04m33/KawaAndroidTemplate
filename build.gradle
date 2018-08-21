@@ -9,6 +9,7 @@ buildscript {
         if (!project.hasProperty('appVersionName')) {
             project.ext.appVersionName = '1.0'
         }
+
         if (!project.hasProperty('keyStoreFile')) {
             project.ext.keyStoreFile = 'release-key.jks'
         }
@@ -21,9 +22,11 @@ buildscript {
         if (!project.hasProperty('releaseKeyPassword')) {
             project.ext.releaseKeyPassword = '123456'
         }
+
         if (!project.hasProperty('localLibsDir')) {
             project.ext.localLibsDir = 'libs'
         }
+
         if (!project.hasProperty('androidCompileSdkVersion')) {
             project.ext.androidCompileSdkVersion = 28
         }
@@ -39,6 +42,10 @@ buildscript {
         if (!project.hasProperty('androidGradlePluginVersion')) {
             project.ext.androidGradlePluginVersion = '3.1.0'
         }
+
+        if (!project.hasProperty('kawaSourceDir')) {
+            project.ext.kawaSourceDir = 'src/main/kawa'
+        }
     }
 
     repositories {
@@ -50,9 +57,6 @@ buildscript {
     }
 }
 
-plugins {
-    id 'com.medranocalvo.gradle.gradle-android-kawa-plugin' version '0.9'
-}
 apply plugin: 'com.android.application'
 
 allprojects {
@@ -66,10 +70,6 @@ dependencies {
     implementation fileTree(dir: localLibsDir, include: ['*.jar'])
 }
 
-kawa {
-    language 'scheme'
-}
-
 android {
     compileSdkVersion androidCompileSdkVersion
     buildToolsVersion androidBuildToolsVersion
@@ -80,14 +80,6 @@ android {
         minSdkVersion androidMinSdkVersion
         versionCode appVersionCode
         versionName appVersionName
-    }
-
-    sourceSets {
-        main {
-            kawa {
-                srcDir 'src/main/kawa'
-            }
-        }
     }
 
     signingConfigs {
@@ -104,17 +96,47 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
-            kawa {
-                inline true
-            }
         }
 
-        debug {
-            kawa {
-                // XXX: Setting `--no-inline` messes up the bytecode output for static
-                //      initialization blocks
-                inline true
-            }
+        debug { }
+    }
+}
+
+afterEvaluate {
+    def androidPlugin = plugins.findPlugin('com.android.application')
+    def androidBootClassFiles = files(androidPlugin.androidBuilder.getBootClasspath(false))
+    def kawaSourceFiles = fileTree(dir: kawaSourceDir, include: ['**/*.scm'])
+
+    android.applicationVariants.all { variant ->
+        def variantName = variant.name.capitalize()
+        def destDir = variant.javaCompile.destinationDir
+        def javaClasspath = variant.javaCompile.classpath
+
+        task "compileKawa${variantName}" (type: JavaExec) {
+            classpath fileTree(dir: localLibsDir, include: ['*.jar'])
+            classpath androidBootClassFiles
+            classpath javaClasspath
+            classpath destDir
+
+            inputs.files(classpath)
+            inputs.files(kawaSourceFiles)
+            outputs.dir(destDir)
+
+            main 'kawa.repl'
+
+            args '--warn-invoke-unknown-method'
+            args '--warn-undefined-variable'
+            args '--warn-unknown-member'
+            args '--warn-unreachable'
+            args '--warn-unused'
+            args '--warn-as-error'
+            args '-d'
+            args destDir
+            args '-C'
+            args kawaSourceFiles.getFiles()
         }
+
+        tasks.findByName("compileKawa${variantName}").dependsOn(variant.javaCompile)
+        tasks.findByName("transformClassesWithDexBuilderFor${variantName}").dependsOn("compileKawa${variantName}")
     }
 }
