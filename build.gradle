@@ -142,6 +142,17 @@ afterEvaluate {
         }
 
         tasks.findByName("compileKawa${variantName}").dependsOn(variant.javaCompile)
-        tasks.findByName("transformClassesWithDexBuilderFor${variantName}").dependsOn("compileKawa${variantName}")
+        tasks.findByName("compile${variantName}Sources").dependsOn("compileKawa${variantName}")
     }
 }
+
+// gradle.taskGraph.whenReady {taskGraph ->
+//     println "Found task graph: " + taskGraph
+//     println "Found " + taskGraph.allTasks.size() + " tasks."
+//     taskGraph.allTasks.forEach { task ->
+//         println task
+//         task.dependsOn.forEach { dep ->
+//             println "  - " + dep
+//         }
+//     }
+// }
