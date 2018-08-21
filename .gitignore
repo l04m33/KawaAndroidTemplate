@@ -2,3 +2,4 @@ build
 libs
 .gradle
 local.properties
+release-key.jks
