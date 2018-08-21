@@ -124,12 +124,17 @@ afterEvaluate {
 
             main 'kawa.repl'
 
+            args '--scheme'
+
             args '--warn-invoke-unknown-method'
             args '--warn-undefined-variable'
+            args '--warn-uninitialized'
             args '--warn-unknown-member'
             args '--warn-unreachable'
             args '--warn-unused'
+            args '--warn-void-used'
             args '--warn-as-error'
+
             args '-d'
             args destDir
             args '-C'
